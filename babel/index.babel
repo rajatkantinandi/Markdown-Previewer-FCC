@@ -1,0 +1,89 @@
+const placeHolder = `# Hi, This is a header
+## This is a sub-header
+### Header of level 3
+#### Welcome to markdown
+*Some italic text*
+__some bold text__
+Some inline code: \`printf("Hello World!");\`
+
+\`\`\`js
+//Some block of code
+console.log("Markdown is fun");
+\`\`\`
+- bullet point 1
+- bullet point 2
+
+> created By [![twitter logo](https://twitter.com/favicon.ico) Rajat Kanti Nandi](https://twitter.com/rajatkantinandi)`;
+marked.setOptions({
+  highlight: function(code) {
+    return hljs.highlightAuto(code).value;
+  },
+  breaks: true,
+  gfm: true
+});
+const renderer = new marked.Renderer();
+renderer.link = function(href, title, text) {
+  return `<a target="_blank" href="${href}">${text}` + "</a>";
+};
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: placeHolder
+    };
+    this.handleInput = this.handleInput.bind(this);
+  }
+
+  handleInput(event) {
+    this.setState({
+      input: event.target.value
+    });
+  }
+  render() {
+    return (
+      <div className="app">
+        <Editor onChange={this.handleInput} input={this.state.input} />
+        <Viewer input={this.state.input} />
+      </div>
+    );
+  }
+}
+
+class Editor extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <div className="panel editor">
+        <div className="title">Markdown Editor</div>
+        <textarea
+          id="editor"
+          className="textinput"
+          value={this.props.input}
+          onChange={this.props.onChange}
+        />
+      </div>
+    );
+  }
+}
+class Viewer extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <div className="panel viewer">
+        <div className="title">Preview</div>
+        <div
+          id="preview"
+          className="preview"
+          dangerouslySetInnerHTML={{
+            __html: marked(this.props.input, { renderer: renderer })
+          }}
+        />
+      </div>
+    );
+  }
+}
+ReactDOM.render(<App />, document.querySelector(".container"));
